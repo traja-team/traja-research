@@ -1,7 +1,7 @@
 import pandas as pd
 import urllib3
 import sklearn
-
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -133,3 +133,5 @@ def E1_E2():
     
     generator = batch_generator(batch_size=batch_size,
                                 sequence_length=sequence_length)
+
+    return (generator, (x_train, x_test, y_train, y_test))
