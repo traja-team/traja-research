@@ -1,10 +1,5 @@
-import wget
-
 import pandas as pd
 import urllib3
-
-
-#wget.download('http://justinshenk.com/share/E1_E2.csv')
 
 http = urllib3.PoolManager()
 request = http.request('GET', 'justinshenk.com/share/E1_E2.csv')
