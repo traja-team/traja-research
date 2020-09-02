@@ -65,7 +65,11 @@ if __name__ == '__main__':
     history = get_history(saturation_logger=saturation_logger, target_layer=target_layer)
     eig_pairs, weighted_sum = SimpsonDiversityIndexBasedSaturation(history) 
     transformation_matrix = get_transformed_eig(eig_pairs=eig_pairs)
-    projected_points = get_projected_points(transformation_matrix=transformation_matrix,history=history,layer=target_layer,epoch=1)
+    projected_points = get_projected_points(transformation_matrix=transformation_matrix, 
+                                            history=history, 
+                                            layer=target_layer, 
+                                            epoch=1)
+    
     print(projected_points.keys())
     
     
