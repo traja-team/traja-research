@@ -71,9 +71,10 @@ class SaturationMetric(keras.callbacks.Callback):
         self.model = model
         self.input_data = input_data
         self.print_freq = print_freq
-
-    def on_train_begin(self, logs=None):
         self.preactivation_states = {}
+        
+    def on_train_begin(self, logs=None):
+        
         layers = self.model.layers
         dense_outputs = get_preactivation_tensors(layers)
         initialize_preactivation_states(dense_outputs, self)
@@ -157,11 +158,18 @@ def record_saturation(layers: str,
     return logs
 
 def get_transformed_eig(eig_pairs):
+    """Transformation matrix of eigen space given eigen pairs
+
+    Args:
+        eig_pairs (list): [description]
+
+    Returns:
+        [type]: [description]
+    """
     eigen_space = eig_pairs[0:2]
     eigen_space = np.array([eig_pairs[0][1], eig_pairs[1][1]])
     transformation_matrix = np.matmul(np.transpose(eigen_space), eigen_space)
     return transformation_matrix
-
 
 def SimpsonDiversityIndexBasedSaturation(history):
     

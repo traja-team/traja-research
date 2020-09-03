@@ -32,6 +32,7 @@ def initialize_preactivation_states(dense_outputs, obj):
 
 def get_layer_outputs(obj):
     """Get intermediate outputs aka. preactivation states."""
+    print(obj.model.layers)
     layers = obj.model.layers[1:]
     dense_outputs = get_preactivation_tensors(layers)
     return dense_outputs
@@ -69,9 +70,9 @@ class SaturationMetric(keras.callbacks.Callback):
         self.model = model
         self.input_data = input_data
         self.print_freq = print_freq
-
-    def on_train_begin(self, logs=None):
         self.preactivation_states = {}
+    def on_train_begin(self, logs=None):
+        
         layers = self.model.layers
         dense_outputs = get_preactivation_tensors(layers)
         initialize_preactivation_states(dense_outputs, self)
@@ -169,9 +170,10 @@ class SaturationLogger(keras.callbacks.Callback):
         self.model = model
         self.input_data = input_data
         self.print_freq = print_freq
+        self.preactivation_states = {}
 
     def on_train_begin(self, logs=None):
-        self.preactivation_states = {}
+        
         layers = self.model.layers
         dense_outputs = get_preactivation_tensors(layers)
         initialize_preactivation_states(dense_outputs, self)
