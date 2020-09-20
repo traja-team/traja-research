@@ -40,7 +40,6 @@ def get_layer_outputs(obj):
     dense_outputs = get_preactivation_tensors(layers)
     return dense_outputs
 
-
 def save_intermediate_outputs(dense_outputs, obj):
     """Save outputs to obj."""
     for tensor in dense_outputs:

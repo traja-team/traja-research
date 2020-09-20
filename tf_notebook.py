@@ -44,7 +44,6 @@ def setup():
 
     return model, generator, validation_data, callbacks
 
-
 if __name__ == '__main__':
     model, generator, validation_data, callbacks = setup()
     optimizer = RMSprop(lr=1e-3, momentum=0.0)
@@ -59,7 +58,7 @@ if __name__ == '__main__':
     saturation_logger = SaturationLogger(model, input_data=validation_data[:2], print_freq=1)
     target_layer ='lstm_4'
     projected_points = dict()
-    
+    print(saturation_logger.preactivation_states)  # Is empty dict
     history = get_history(saturation_logger=saturation_logger, target_layer=target_layer)
     eig_pairs, weighted_sum = SimpsonDiversityIndexBasedSaturation(history) 
     transformation_matrix = get_transformed_eig(eig_pairs=eig_pairs)

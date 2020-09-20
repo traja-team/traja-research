@@ -7,10 +7,12 @@ projected_points = dict()
 
 def get_preactivation_tensors(layers):
     """Get all valid layers for computing saturation."""
-    dense_outputs = []
-    for layer in layers:
-        if 'dense' in layer.name or 'lstm' in layer.name:
-            if '_input' in layer.name:
+    # Get layer names
+    layer_names = [layer.name for layer in layers]
+    layer_outputs = []
+    for layer, layer_name in zip(layers, layer_names):
+        if 'dense' in layer_name or 'lstm' in layer_name:
+            if '_input' in layer_name:
                 # HACK
                 continue
             # Get pre-activation
@@ -19,8 +21,9 @@ def get_preactivation_tensors(layers):
                 preactivation_tensor = layer.output.op.inputs[0]
             else:
                 preactivation_tensor = layer.output
-            dense_outputs.append(preactivation_tensor)
-    return dense_outputs
+            layer_outputs.append(preactivation_tensor)
+    _layer_outputs = dict(zip(layer_names,layer_outputs))
+    return _layer_outputs
 
 
 def initialize_preactivation_states(dense_outputs, obj):
@@ -33,8 +36,9 @@ def initialize_preactivation_states(dense_outputs, obj):
 def get_layer_outputs(obj):
     """Get intermediate outputs aka. preactivation states."""
     print(obj.model.layers)
-    layers = obj.model.layers[1:]
-    dense_outputs = get_preactivation_tensors(layers)
+    # layers = obj.model.layers[1:]
+    # dense_outputs is a dict of key:val --> layer_name:layer_output.
+    dense_outputs = get_preactivation_tensors(obj.model.layers)
     return dense_outputs
 
 
