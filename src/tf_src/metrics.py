@@ -29,7 +29,10 @@ def get_preactivation_tensors(layers):
 def initialize_preactivation_states(dense_outputs, obj):
     """Creates lists for `preactivation_states` dictionary."""
     for tensor in dense_outputs:
-        layer_name = tensor.name.split('/')[0]
+        try:
+            layer_name = tensor.name.split('/')[0]
+        except:
+            layer_name=tensor
         obj.preactivation_states[layer_name] = []
 
 
@@ -45,8 +48,10 @@ def get_layer_outputs(obj):
 def save_intermediate_outputs(dense_outputs, obj):
     """Save outputs to obj."""
     for tensor in dense_outputs:
-        layer_name = tensor.name.split('/')[0]
-
+        try:
+            layer_name = tensor.name.split('/')[0]
+        except:
+            layer_name=tensor
         # Route intermediate output, aka. preactivation state
         #print("Input", obj.model.input)
         #print("Phase", keras.backend.learning_phase())
@@ -54,7 +59,9 @@ def save_intermediate_outputs(dense_outputs, obj):
         #print("tensor", tensor)
         #print("List tensor", [tensor])
         #func = keras.backend.function([obj.model.input] + [keras.backend.learning_phase()], [tensor])
-        func = keras.backend.function([obj.model.input], [tensor])
+        #TODO: Get the user defined layer, to log outputs
+
+        func = keras.backend.function([obj.model.encoder.input], [tensor])
         #intermediate_output = func([obj.input_data, 0.])[0]  # batch_nr x width
         #print("Input data", obj.input_data)
         intermediate_output = func(obj.input_data)[0] 
@@ -98,8 +105,6 @@ class SaturationMetric(keras.callbacks.Callback):
                     logs[layer] = self.preactivation_states[layer]
                 except Exception as e:
                     print(e)
-
-
 
 def record_saturation(layers: str,
                       obj,

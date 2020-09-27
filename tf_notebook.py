@@ -15,7 +15,7 @@ src.models.DeepLSTM(units=[512,512,512], output_classes=2)
 src.models.DeepLSTM(100, 3, 2)
 src.tf_src.datasets.E1_E2()
 
-def setup():
+def DeepLSTMSetup():
 
     model = src.models.DeepLSTM(units=[512,512,512], output_classes=2)
 
@@ -44,8 +44,40 @@ def setup():
 
     return model, generator, validation_data, callbacks
 
+
+def AutoEncoderSetup():
+    model = src.tf_src.models.AutoEncoder(hidden_dims = 64, latent_dims = 3, output_dims = 2)
+    generator, data = src.tf_src.datasets.E1_E2()
+    x_train, x_test, y_train, y_test = data
+    x_scaler = MinMaxScaler()
+    x_train_scaled = x_scaler.fit_transform(x_train)
+    x_test_scaled = x_scaler.transform(x_test)
+    y_scaler = MinMaxScaler()
+    y_train_scaled = y_scaler.fit_transform(y_train)
+    y_test_scaled = y_scaler.transform(y_test)
+    
+    validation_data = (np.expand_dims(x_test_scaled, axis=0),
+                       np.expand_dims(y_test_scaled, axis=0))
+
+    x_batch, y_batch = next(generator)
+    
+    saturation_logger = SaturationLogger(model, input_data=x_batch[:2], print_freq=1)
+    # NOTE: Saturation logger instance is only on encoder 
+    # TODO: Multiple instances of saturation logger 
+#     saturation_logger = SaturationLogger(model, input_data=x_batch[:2], print_freq=1)
+
+    callbacks = [src.tf_src.callbacks.callback_early_stopping,
+                 src.tf_src.callbacks.callback_checkpoint,
+                 src.tf_src.callbacks.callback_tensorboard,
+                 src.tf_src.callbacks.callback_reduce_lr,
+                 saturation_logger]
+
+    return model, generator, validation_data, callbacks
+    
+    
 if __name__ == '__main__':
-    model, generator, validation_data, callbacks = setup()
+    model, generator, validation_data, callbacks = AutoEncoderSetup()
+#     model, generator, validation_data, callbacks = DeepLSTMSetup()
     optimizer = RMSprop(lr=1e-3, momentum=0.0)
     model.compile(loss=loss_mse_warmup, optimizer=optimizer)
     model.fit(x=generator,
@@ -55,8 +87,9 @@ if __name__ == '__main__':
               callbacks=callbacks)
     
     '''Get the embeddings of target layer after training'''
-    saturation_logger = SaturationLogger(model, input_data=validation_data[:2], print_freq=1)
-    target_layer ='lstm_4'
+    saturation_logger = SaturationLogger(model.encoder, input_data=validation_data[:2], print_freq=1)
+#     target_layer ='lstm_1'
+    target_layer = 'hidden_layer' # LSTM layers in encoder and decoder
     projected_points = dict()
     print(saturation_logger.preactivation_states)  # Is empty dict
     history = get_history(saturation_logger=saturation_logger, target_layer=target_layer)
@@ -68,7 +101,5 @@ if __name__ == '__main__':
                                             epoch=1)
     
     print(projected_points.keys())
-    
-    
     
     
