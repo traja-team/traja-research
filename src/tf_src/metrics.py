@@ -50,13 +50,17 @@ def save_intermediate_outputs(dense_outputs, obj):
         #print("tensor", tensor)
         #print("List tensor", [tensor])
         #func = keras.backend.function([obj.model.input] + [keras.backend.learning_phase()], [tensor])
-        func = keras.backend.function([obj.model.input], [tensor])
+        #TODO: Explicitly user defined target layer in the model
+        
+        try:
+            func = keras.backend.function([obj.model.input], [tensor])
+        except:
+            func = keras.backend.function([obj.model.encoder.input], [tensor])
+        
         #intermediate_output = func([obj.input_data, 0.])[0]  # batch_nr x width
         #print("Input data", obj.input_data)
         intermediate_output = func(obj.input_data)[0] 
-
         obj.preactivation_states[layer_name].append(intermediate_output)
-
 
 class SaturationMetric(keras.callbacks.Callback):
     """Keras callback for computing and logging layer saturation.
@@ -105,6 +109,7 @@ def record_saturation(layers: str,
                       write_summary: bool = False):
     """Records saturation for layers into logs and writes summaries."""
     for layer in layers:
+        print('The LSTM layers are',layer)
         layer_history = obj.preactivation_states[layer]
         if len(layer_history) < 2:  # ?
             continue
@@ -146,12 +151,13 @@ def record_saturation(layers: str,
         eigen_space = np.array([eig_pairs[0][1], eig_pairs[1][1]])
         transformation_matrix = np.matmul(np.transpose(eigen_space), eigen_space)
 
-
+        print('Projected Points',projected_points)
         if layer not in projected_points:
             projected_points[layer] = list()
         if len(projected_points[layer]) <= epoch:
             projected_points[layer].append(list())
 
+        print('Layer Hisotry',history)
         for index in range(history.shape[0]):
             projected_output = np.matmul(transformation_matrix, history[index])
             projected_points[layer][epoch].append(projected_output[0:2])
