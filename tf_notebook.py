@@ -80,7 +80,6 @@ if __name__ == '__main__':
               callbacks=callbacks)
     
     '''Get the embeddings of target layer after training'''
-    saturation_logger = SaturationLogger(model, input_data=validation_data[:2], print_freq=1)
     target_layer ='lstm_decoder'
     projected_points = dict()
     print(projected_points)

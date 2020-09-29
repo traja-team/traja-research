@@ -33,7 +33,7 @@ def initialize_preactivation_states(dense_outputs, obj):
 def get_layer_outputs(obj):
     """Get intermediate outputs aka. preactivation states."""
     print(obj.model.layers)
-    layers = obj.model.layers[1:]
+    layers = obj.model.layers[0:]
     dense_outputs = get_preactivation_tensors(layers)
     return dense_outputs
 
