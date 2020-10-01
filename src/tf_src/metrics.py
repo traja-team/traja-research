@@ -33,7 +33,7 @@ def initialize_preactivation_states(dense_outputs, obj):
 def get_layer_outputs(obj):
     """Get intermediate outputs aka. preactivation states."""
     print(obj.model.layers)
-    layers = obj.model.layers[1:]
+    layers = obj.model.layers[0:]
     dense_outputs = get_preactivation_tensors(layers)
     return dense_outputs
 
@@ -160,7 +160,8 @@ def record_saturation(layers: str,
         print('Layer Hisotry',history)
         for index in range(history.shape[0]):
             projected_output = np.matmul(transformation_matrix, history[index])
-            projected_points[layer][epoch].append(projected_output[0:2])
+            print(projected_points)
+            projected_points[layer][epoch - 1].append(projected_output[0:2])
     return logs
 
 

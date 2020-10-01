@@ -107,7 +107,7 @@ def get_projected_points(transformation_matrix,history,layer,epoch):
 
         for index in range(history.shape[0]):
             projected_output = np.matmul(transformation_matrix, history[index]) 
-            projected_points[layer][epoch].append(projected_output[0:2])
+            projected_points[layer][epoch - 1].append(projected_output[0:2])
             
     return projected_points
 

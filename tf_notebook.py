@@ -80,11 +80,10 @@ if __name__ == '__main__':
               callbacks=callbacks)
     
     '''Get the embeddings of target layer after training'''
-    saturation_logger = SaturationLogger(model, input_data=validation_data[:2], print_freq=1)
-    target_layer ='lstm_encoder'
+    target_layer ='lstm_decoder'
     projected_points = dict()
     print(projected_points)
-    history = get_history(saturation_logger=saturation_logger, target_layer=target_layer)
+    history = get_history(saturation_logger=callbacks[4], target_layer=target_layer)
     eig_pairs, weighted_sum = SimpsonDiversityIndexBasedSaturation(history) 
     transformation_matrix = get_transformed_eig(eig_pairs=eig_pairs)
     projected_points = get_projected_points(transformation_matrix=transformation_matrix, 
@@ -93,6 +92,8 @@ if __name__ == '__main__':
                                             epoch=1)
     
     print(projected_points.keys())
+
+    exit(0)
     
     
     
