@@ -1,8 +1,6 @@
-# traja-research
+# Traja: Deep Learning Models
 
-## Traja Deep Learning Models
-
-This repository set up the research environment(using colab) for the deep learning latent variable models for time series data. Available models and their tasks are,
+This repository set up the research environment (in colab) for the deep learning latent variable models for time series data. Available models and their tasks are,
 
 | Model | Classification | Prediction | Forecasting | Generation | Colab Link |
 | :---: | :---: | :---: | :---: | :---: | :---: | 
