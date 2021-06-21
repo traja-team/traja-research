@@ -1,8 +1,8 @@
 # Traja: Deep Learning Models
 
-This repository set up the research environment (in colab) for the deep learning latent variable models for time series data. Available models and their tasks are,
+This git repository contains the research environments (in colab) for the deep learning latent variable models for time series data. Available models and their tasks are,
 
-| Model | Classification | Prediction | Forecast | Generation | Colab Link |
+| Model | Classification | Prediction | Forecasting | Generation | Colab Link |
 | :---: | :---: | :---: | :---: | :---: | :---: | 
 | LSTM | - | x | x | - | [LSTM](https://colab.research.google.com/drive/1fsOdyt6sqwFihH90igW47Sc0ofEtEKof) |
 | Auto Encoder | x | x | x | - | [LSTM AE](https://colab.research.google.com/github/Saran-nns/traja-research/blob/master/ForecastingJaguarLSTMCategoricalAE3.ipynb)
