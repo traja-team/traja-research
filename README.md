@@ -1,5 +1,7 @@
 # Traja: Deep Learning Models
 
+<a href="url"><img src="https://raw.githubusercontent.com/Saran-nns/traja-research/master/traja_dl_models.png" height="300" width="850"></a>
+
 This git repository contains the research environments (in colab) for the deep learning latent variable models for time series data modelling. Available models and their tasks are,
 
 | Model | Classification | Prediction | Forecasting | Generation | Colab Link |
