@@ -11,3 +11,5 @@ This git repository contains the research environments (in colab) for the deep l
 | Variational AutoEncoder | x | - | - | x | [LSTM VAE](https://colab.research.google.com/drive/1F68IIf5JALLlM4oBCShFGqnzerCymaAq) |
 | Variational AutoEncoders + Generative Adversarial Network | x | - | - | x | [LSTM VAEGAN](https://colab.research.google.com/drive/174FZGis1iGNOMW7pmv_8Br-3CO-22aKq) |
 
+### Paper: 
+[Traja: A Python toolbox for animal trajectory analysis](https://github.com/openjournals/joss-papers/blob/joss.03202/joss.03202/10.21105.joss.03202.pdf)
