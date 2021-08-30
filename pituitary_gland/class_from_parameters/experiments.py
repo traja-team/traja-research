@@ -64,80 +64,106 @@ def test_classification_performance(df, axes):
     return np.mean(classification_performances), standard_deviation, classification_performances
 
 
-def experiment(generate_new_dataset: bool, fn, slug):
-    if not os.path.isfile(DATASETS_FILE) or generate_new_dataset:
-        print("Generating new dataset!")
-        df = generate_pituitary_dataset(parameter_function=fn,
-                                        num_samples=100000,
-                                        classify=True,
-                                        retain_trajectories=False)
+def generate_df(key_name, fn):
+    print("Generating new dataset!")
+    df = generate_pituitary_dataset(parameter_function=fn,
+                                    num_samples=100,
+                                    classify=True,
+                                    retain_trajectories=False)
 
-        with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
-            store['dataset_' + slug] = df
+    with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
+        store[key_name] = df
+        print("New dataset stored!")
+    return df
+
+
+def experiment(generate_new_dataset: bool, rerun_experiments: bool, fn, slug):
+    dataset_key = 'dataset_' + slug
+    if generate_new_dataset:
+        df = generate_df(dataset_key, fn)
     else:
-        print("Loading existing dataset!")
-        with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
-            df = store['dataset_' + slug]
+        if os.path.isfile(DATASETS_FILE):
+            print("Checking if dataset exists in H5 file!!")
+            with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
+                if '/' + dataset_key in list(store.keys()):
+                    print("Loading existing dataset!")
+                    df = store[dataset_key]
+                else:
+                    df = generate_df(dataset_key, fn)
+        else:
+            df = generate_df(dataset_key, fn)
+
     print(df)
 
-    parameter_axis = get_parameter_axis(df)
-    values_list = list()
-    for index in range(1, len(parameter_axis)):
-        print("Running experiments for dimension", index)
-        values = dict()
-        for item in itertools.combinations(parameter_axis, index):
-            mean_performance, standard_deviation, performances = test_classification_performance(df, list(item))
-            values[item] = (mean_performance, standard_deviation, performances)
+    outputs_key = 'outputs_' + slug
 
-        values_ordered = OrderedDict(sorted(values.items(), key=lambda x: x[1][0], reverse=True))
-        values_list.append(values_ordered)
-
-    dimensions_out = list()
-    for dimension in values_list:
-        outputs = list()
-        top_entry = list(dimension.values())[0]
-        for key, value in dimension.items():
-            tvalue, pvalue = scipy.stats.ttest_ind(top_entry[2], value[2], nan_policy='omit')
-            output = (key, value[0], value[1], tvalue, pvalue)
-            outputs.append(output)
-        dimensions_out.append(outputs)
     with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
-        store['outputs_' + slug] = df
+        outputs_exists = '/' + outputs_key in list(store.keys())
+
+    if generate_new_dataset or rerun_experiments or not outputs_exists:
+        print("Running experiment")
+
+        parameter_axis = get_parameter_axis(df)
+        values_list = list()
+        for index in range(1, len(parameter_axis)):
+            print("Running experiments for dimension", index)
+            values = dict()
+            for item in itertools.combinations(parameter_axis, index):
+                mean_performance, standard_deviation, performances = test_classification_performance(df, list(item))
+                values[item] = (mean_performance, standard_deviation, performances)
+
+            values_ordered = OrderedDict(sorted(values.items(), key=lambda x: x[1][0], reverse=True))
+            values_list.append(values_ordered)
+
+        dimensions_out = list()
+        for dimension in values_list:
+            outputs = list()
+            top_entry = list(dimension.values())[0]
+            for key, value in dimension.items():
+                tvalue, pvalue = scipy.stats.ttest_ind(top_entry[2], value[2], nan_policy='omit')
+                output = (key, value[0], value[1], tvalue, pvalue)
+                outputs.append(output)
+            dimensions_out.append(outputs)
+        with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
+            store[outputs_key] = df
+    else:
+        print("Experiment already run!")
 
 
 def experiment_basic(generate_new_dataset: bool = False):
     print("Running experiment_basic")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters, '')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters, '')
 
 
 def experiment_Isk(generate_new_dataset: bool = False):
     print("Running experiment_Isk")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters_Isk, 'Isk')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk, 'Isk')
 
 
 def experiment_Isk_Ibk(generate_new_dataset: bool = False):
     print("Running experiment_Isk_Ibk")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters_Isk_Ibk, 'Isk_Ibk')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk, 'Isk_Ibk')
 
 
 def experiment_Isk_Ibk_Ikir(generate_new_dataset: bool = False):
     print("Running experiment_Isk_Ibk_Ikir")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters_Isk_Ibk_Ikir, 'Isk_Ibk_Ikir')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir, 'Isk_Ibk_Ikir')
 
 
 def experiment_Isk_Ibk_Ikir_Icat(generate_new_dataset: bool = False):
     print("Running experiment_Isk_Ibk_Ikir_Icat")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat, 'Isk_Ibk_Ikir_Icat')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat, 'Isk_Ibk_Ikir_Icat')
 
 
 def experiment_Isk_Ibk_Ikir_Icat_Ia(generate_new_dataset: bool = False):
     print("Running experiment_Isk_Ibk_Ikir_Icat_Ia")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia, 'Isk_Ibk_Ikir_Icat_Ia')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia, 'Isk_Ibk_Ikir_Icat_Ia')
 
 
 def experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(generate_new_dataset: bool = False):
     print("Running experiment_Isk_Ibk_Ikir_Icat_Ia_Inav")
-    experiment(generate_new_dataset, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia_Inav, 'Isk_Ibk_Ikir_Icat_Ia_Inav')
+    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia_Inav,
+               'Isk_Ibk_Ikir_Icat_Ia_Inav')
 
 
 experiment_basic(False)
