@@ -67,7 +67,7 @@ def test_classification_performance(df, axes):
 def generate_df(key_name, fn):
     print("Generating new dataset!")
     df = generate_pituitary_dataset(parameter_function=fn,
-                                    num_samples=100,
+                                    num_samples=100000,
                                     classify=True,
                                     retain_trajectories=False)
 
