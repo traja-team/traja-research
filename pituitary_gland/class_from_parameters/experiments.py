@@ -9,8 +9,6 @@ import os
 import numpy as np
 from sklearn import svm
 from collections import OrderedDict
-from sklearn import neural_network
-from datetime import datetime
 import logging
 import scipy
 
@@ -25,14 +23,6 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S',
     force=True)
-
-
-#def yield_parameters_inner_loop(parameters: list, number_of_parameters: int):
-#    if number_of_parameters == 0:
-#        yield []#
-#
-#    for index in range(len(parameters) - number_of_parameters + 1):
-#        yield parameters[index] + yield_parameters_inner_loop[parameters]
 
 
 def get_parameter_axis(df: pd.DataFrame):
@@ -82,7 +72,7 @@ def evaluate_classification_performance(df, axes, number_of_iterations=100, frac
 
 
 def generate_df(key_name, fn):
-    num_samples = 1000
+    num_samples = 100000
     logging.info("Generating new dataset!")
     df = generate_pituitary_dataset(parameter_function=fn,
                                     num_samples=num_samples,
@@ -207,6 +197,7 @@ def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, shou
         with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE), 'a') as store:
             data_key = output_key + '/data'
             store[data_key] = results_dataframe
+            del store[experiment_is_running_key]
 
 
 def find_best_parameter_combinations_old(df, parameter_axis):
@@ -303,10 +294,10 @@ def experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(generate_new_dataset: bool = False):
 
 
 if __name__ == '__main__':
-    #experiment_basic(True)
-    experiment_Isk(True)
-    #experiment_Isk_Ibk(False)
-    #experiment_Isk_Ibk_Ikir(False)
-    #experiment_Isk_Ibk_Ikir_Icat(False)
-    #experiment_Isk_Ibk_Ikir_Icat_Ia(False)
-    #experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(False)
+    experiment_basic(False)
+    experiment_Isk(False)
+    experiment_Isk_Ibk(False)
+    experiment_Isk_Ibk_Ikir(False)
+    experiment_Isk_Ibk_Ikir_Icat(False)
+    experiment_Isk_Ibk_Ikir_Icat_Ia(False)
+    experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(False)
