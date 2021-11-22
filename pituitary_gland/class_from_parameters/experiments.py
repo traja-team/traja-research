@@ -1,4 +1,5 @@
 import itertools
+from datetime import datetime
 
 import pandas as pd
 from traja.dataset.pituitary_gland import pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia_Inav, \
@@ -16,8 +17,9 @@ EXPERIMENTS_DIR = '.'
 DATASETS_FILE = 'datasets.h5'
 
 
+logfile = f'pituitary_log_{datetime.now().strftime("%Y%m%d-%H%M%S")}'
 logging.basicConfig(
-    filename='example.log',
+    filename=logfile,
     format='%(asctime)s %(levelname)-8s %(message)s',
     filemode='w',
     level=logging.INFO,
