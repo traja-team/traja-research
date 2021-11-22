@@ -17,7 +17,7 @@ EXPERIMENTS_DIR = '.'
 DATASETS_FILE = 'datasets.h5'
 
 
-logfile = f'pituitary_log_{datetime.now().strftime("%Y%m%d-%H%M%S")}'
+logfile = f'pituitary_log_{datetime.now().strftime("%Y%m%d-%H%M%S")}.txt'
 logging.basicConfig(
     filename=logfile,
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -76,6 +76,10 @@ def evaluate_classification_performance(df, axes, number_of_iterations=100, frac
 def generate_df(key_name, fn):
     num_samples = 100000
     logging.info("Generating new dataset!")
+
+    is_generating_key = key_name + '/is_generating'
+    with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
+        store[is_generating_key] = pd.DataFrame()
     df = generate_pituitary_dataset(parameter_function=fn,
                                     num_samples=num_samples,
                                     classify=True,
@@ -85,6 +89,8 @@ def generate_df(key_name, fn):
     with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
         store[key_name] = df
         logging.info("New dataset stored!")
+        if is_generating_key in list(store.keys()):
+            del store[is_generating_key]
     return df
 
 
@@ -95,6 +101,12 @@ def experiment(generate_new_dataset: bool, rerun_experiments: bool, parameter_fu
         logging.info(f"H5 file {DATASETS_FILE} not found")
 
     experiment_h5_key = '/experiment_' + slug
+
+    dataset_being_generated = experiment_h5_key + '/dataset/is_generating'
+    with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE)) as store:
+        if dataset_being_generated in list(store.keys()):
+            logging.info("Dataset is currently being generated. Skipping experiment")
+            return
 
     df = generate_or_load_dataset(parameter_function, generate_new_dataset, experiment_h5_key)
 
@@ -115,7 +127,7 @@ def experiment(generate_new_dataset: bool, rerun_experiments: bool, parameter_fu
 def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, should_rerun_experiments, pvalue_threshold=0.01):
     for dimension in range(1, len(parameter_axis)):
         output_key = experiment_h5_key + f'/outputs/dim_{dimension}'
-        experiment_is_running_key = output_key + 'currently_running'
+        experiment_is_running_key = output_key + '/currently_running'
 
         if should_rerun_experiments:
             # Force-run the experiment
@@ -144,6 +156,8 @@ def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, shou
             continue
 
         logging.info(f"Running experiments for dimension {dimension}")
+        with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE), 'a') as store:
+            store[experiment_is_running_key] = pd.DataFrame()
         approximate_classification_performances = dict()
         logging.info(
             f"There are {len(list(itertools.combinations(parameter_axis, dimension)))} combinations to evaluate!")
@@ -199,7 +213,8 @@ def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, shou
         with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE), 'a') as store:
             data_key = output_key + '/data'
             store[data_key] = results_dataframe
-            del store[experiment_is_running_key]
+            if experiment_is_running_key in list(store.keys()):
+                del store[experiment_is_running_key]
 
 
 def find_best_parameter_combinations_old(df, parameter_axis):
@@ -303,3 +318,4 @@ if __name__ == '__main__':
     experiment_Isk_Ibk_Ikir_Icat(False)
     experiment_Isk_Ibk_Ikir_Icat_Ia(False)
     experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(False)
+    logging.info("All experiments finished. Goodbye!")
