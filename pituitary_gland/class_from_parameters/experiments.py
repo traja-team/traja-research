@@ -17,14 +17,15 @@ EXPERIMENTS_DIR = '.'
 DATASETS_FILE = 'datasets.h5'
 
 
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
 logfile = f'pituitary_log_{datetime.now().strftime("%Y%m%d-%H%M%S")}.txt'
 logging.basicConfig(
     filename=logfile,
     format='%(asctime)s %(levelname)-8s %(message)s',
     filemode='w',
     level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S',
-    force=True)
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def get_parameter_axis(df: pd.DataFrame):
@@ -63,7 +64,7 @@ def evaluate_classification_performance(df, axes, number_of_iterations=100, frac
         test_data = svm_data[split_index:end_index]
         test_labels = svm_labels[split_index:end_index]
 
-        clf = svm.SVC()
+        clf = svm.LinearSVC()
 
         clf.fit(train_data, train_labels)
         classification_performances.append(np.sum(clf.predict(test_data) == test_labels) / len(test_data))
@@ -138,7 +139,7 @@ def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, shou
         else:
             # Check if the experiment has been run or not
             with pd.HDFStore(os.path.join(EXPERIMENTS_DIR, DATASETS_FILE), 'a') as store:
-                if output_key in store.keys():
+                if output_key + '/data' in store.keys():
                     should_run_experiment = False
                 else:
                     should_run_experiment = True
@@ -207,6 +208,7 @@ def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, shou
 
         logging.info(f"{len(indistinguishable_classification_performances)} parameter sets are still indistinguishable.")
 
+        logging.info(f'Top performance: {top_entry[0]} += {1.96 * top_entry[1]}')
         results_dataframe = pd.DataFrame(data=indistinguishable_classification_performances,
                                          columns=parameter_axis + ['mean', 'stddev', 'tvalue', 'pvalue'])
 
