@@ -2,6 +2,7 @@ import itertools
 from datetime import datetime
 
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from traja.dataset.pituitary_gland import pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia_Inav, \
     generate_pituitary_dataset, pituitary_ori_ode_parameters_Isk, pituitary_ori_ode_parameters, \
     pituitary_ori_ode_parameters_Isk_Ibk, pituitary_ori_ode_parameters_Isk_Ibk_Ikir, \
@@ -46,6 +47,10 @@ def evaluate_classification_performance(df, axes, number_of_iterations=100, frac
     classifier_data = df[axes]
     classifier_labels = df['class']
     classification_performances = list()
+
+    scaler = StandardScaler()
+    scaler.fit(classifier_data)
+    classifier_data = scaler.transform(classifier_data)
 
     for i in range(number_of_iterations):
         svm_data = np.array(classifier_data)
@@ -166,7 +171,7 @@ def find_best_parameter_combinations(df, parameter_axis, experiment_h5_key, shou
             if iteration_index % 1000 == 0:
                 axis_string = ', '.join(parameters)
                 logging.info(f"Evaluating axis {iteration_index}: '{axis_string}'")
-            mean_performance, standard_deviation, performances = evaluate_classification_performance(df, list(parameters), fraction_of_data_to_use=0.2)
+            mean_performance, standard_deviation, performances = evaluate_classification_performance(df, list(parameters), fraction_of_data_to_use=0.01)
             approximate_classification_performances[parameters] = (mean_performance, standard_deviation, performances)
 
         ordered_approximate_classification_performances = OrderedDict(sorted(approximate_classification_performances.items(), key=lambda x: x[1][0], reverse=True))
@@ -276,39 +281,39 @@ def generate_or_load_dataset(parameter_function, generate_new_dataset: bool, exp
     return df
 
 
-def experiment_basic(generate_new_dataset: bool = False):
+def experiment_basic(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_basic")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters, 'basic')
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters, 'basic')
 
 
-def experiment_Isk(generate_new_dataset: bool = False):
+def experiment_Isk(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_Isk")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk, 'Isk')
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters_Isk, 'Isk')
 
 
-def experiment_Isk_Ibk(generate_new_dataset: bool = False):
+def experiment_Isk_Ibk(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_Isk_Ibk")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk, 'Isk_Ibk')
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters_Isk_Ibk, 'Isk_Ibk')
 
 
-def experiment_Isk_Ibk_Ikir(generate_new_dataset: bool = False):
+def experiment_Isk_Ibk_Ikir(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_Isk_Ibk_Ikir")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir, 'Isk_Ibk_Ikir')
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters_Isk_Ibk_Ikir, 'Isk_Ibk_Ikir')
 
 
-def experiment_Isk_Ibk_Ikir_Icat(generate_new_dataset: bool = False):
+def experiment_Isk_Ibk_Ikir_Icat(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_Isk_Ibk_Ikir_Icat")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat, 'Isk_Ibk_Ikir_Icat')
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat, 'Isk_Ibk_Ikir_Icat')
 
 
-def experiment_Isk_Ibk_Ikir_Icat_Ia(generate_new_dataset: bool = False):
+def experiment_Isk_Ibk_Ikir_Icat_Ia(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_Isk_Ibk_Ikir_Icat_Ia")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia, 'Isk_Ibk_Ikir_Icat_Ia')
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia, 'Isk_Ibk_Ikir_Icat_Ia')
 
 
-def experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(generate_new_dataset: bool = False):
+def experiment_Isk_Ibk_Ikir_Icat_Ia_Inav(generate_new_dataset: bool = False, rerun_experiments: bool = False):
     logging.info("Running experiment_Isk_Ibk_Ikir_Icat_Ia_Inav")
-    experiment(generate_new_dataset, False, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia_Inav,
+    experiment(generate_new_dataset, rerun_experiments, pituitary_ori_ode_parameters_Isk_Ibk_Ikir_Icat_Ia_Inav,
                'Isk_Ibk_Ikir_Icat_Ia_Inav')
 
 
